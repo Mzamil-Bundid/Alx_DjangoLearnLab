@@ -2,11 +2,10 @@
 
 **Python command:**
 ```python
-retrieved_book = Book.objects.get(id=book.id)
+retrieved_book = Book.objects.get(title="1984")
 print(retrieved_book.title, retrieved_book.author, retrieved_book.publication_year)
+# Expected output: 1984 George Orwell 1949
 ```
 
-**Output:**
-```
-Django Basics Jane Doe 2024
-```
+**Expected output:**  
+1984 George
