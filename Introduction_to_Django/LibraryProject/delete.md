@@ -2,10 +2,8 @@
 
 ## Command Used:
 ```python
+from bookshelf.models import Book
 book = Book.objects.get(title="Nineteen Eighty-Four")
 book.delete()
-print("Book deleted successfully")
-
-# Confirm deletion
-all_books = Book.objects.all()
-print(f"All books after deletion: {all_books}")
+books_count = Book.objects.count()
+print(f"Books remaining: {books_count}")
