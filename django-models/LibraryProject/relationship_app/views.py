@@ -5,7 +5,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout, authenticate
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.detail import DetailView
-from .models import Book, Library
+from .models import Book
+from .models import Library
 from .forms import BookForm  # You need to create this form if not present
 
 # Function-based view to list all books
