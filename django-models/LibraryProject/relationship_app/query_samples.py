@@ -69,8 +69,8 @@ def retrieve_librarian_for_library(library_name):
         # Get the library object
         library = Library.objects.get(name=library_name)
         
-        # Get the librarian using OneToOne relationship
-        librarian = library.librarian
+        # Get the librarian using OneToOne relationship via objects.get
+        librarian = Librarian.objects.get(library=library)
         
         print(f"\nLibrarian for {library_name}:")
         print("-" * 30)
