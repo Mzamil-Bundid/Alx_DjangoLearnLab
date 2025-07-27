@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import DetailView
+from django.views.generic.detail import DetailView
 from .models import Book
 from .models import Library
 from django.contrib.auth import login, logout, authenticate
