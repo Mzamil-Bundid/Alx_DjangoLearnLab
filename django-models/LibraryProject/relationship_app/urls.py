@@ -4,8 +4,8 @@ from .views import list_books
 from .views import add_book
 from .views import edit_book
 from .views import delete_book
-
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
     path('books/', list_books, name='list_books'),
