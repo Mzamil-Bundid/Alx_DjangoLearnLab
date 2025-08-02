@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book List</title>
+</head>
+<body>
+    <h1>Book List</h1>
+    {% if user.has_perm 'core.can_create' %}
+        <a href="{% url 'book_create' %}">Add New Book</a>
+    {% endif %}
+    <ul>
+        {% for book in books %}
+            <li>
+                {{ book.title }} by {{ book.author }} ({{ book.publication_year }})
+                {% if user.has_perm 'core.can_edit' %}
+                    <a href="{% url 'book_edit' book.pk %}">Edit</a>
+                {% endif %}
+                {% if user.has_perm 'core.can_delete' %}
+                    <a href="{% url 'book_delete' book.pk %}">Delete</a>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>No books available.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
