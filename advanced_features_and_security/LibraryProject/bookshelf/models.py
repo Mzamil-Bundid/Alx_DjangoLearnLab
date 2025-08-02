@@ -15,25 +15,22 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, username, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
-
-        # Superusers may not need date_of_birth or profile_photo, so we pass None as default
         return self.create_user(username, email, password, date_of_birth=None, profile_photo=None, **extra_fields)
 
 # Custom User Model
 class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
-    objects = CustomUserManager()  # Attach the custom manager
+    objects = CustomUserManager()
 
     def __str__(self):
         return self.username
 
-# Existing Book Model
+# Book Model with Custom Permissions
 class Book(models.Model):
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=100)
@@ -41,3 +38,11 @@ class Book(models.Model):
 
     def __str__(self):
         return f"{self.title} by {self.author}"
+
+    class Meta:
+        permissions = (
+            ("can_view", "Can view book"),
+            ("can_create", "Can create book"),
+            ("can_edit", "Can edit book"),
+            ("can_delete", "Can delete book"),
+        )
