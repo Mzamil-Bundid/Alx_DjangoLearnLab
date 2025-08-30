@@ -3,12 +3,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.generics import get_object_or_404
 from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer, LikeSerializer
 from .permissions import IsAuthorOrReadOnly
 from notifications.models import Notification
 from django.contrib.contenttypes.models import ContentType
 
+# ViewSet for Post CRUD operations
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -17,6 +19,7 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+# ViewSet for Comment CRUD operations
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -30,7 +33,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         post_pk = self.kwargs.get('post_pk')
-        post = Post.objects.get(pk=post_pk)
+        post = get_object_or_404(Post, pk=post_pk)
         comment = serializer.save(author=self.request.user, post=post)
         # Create notification for comment
         if post.author != self.request.user:
@@ -42,6 +45,7 @@ class CommentViewSet(viewsets.ModelViewSet):
                 target_object_id=post.id
             )
 
+# Feed view using permissions.IsAuthenticated
 class FeedView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -51,17 +55,15 @@ class FeedView(APIView):
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data, status=200)
 
+# Like view using permissions.IsAuthenticated and get_object_or_404
 class LikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        try:
-            post = Post.objects.get(pk=pk)
-        except Post.DoesNotExist:
-            return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
-        if Like.objects.filter(user=request.user, post=post).exists():
+        post = get_object_or_404(Post, pk=pk)
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        if not created:
             return Response({'error': 'You have already liked this post'}, status=status.HTTP_400_BAD_REQUEST)
-        like = Like.objects.create(user=request.user, post=post)
         # Create notification for like
         if post.author != request.user:
             Notification.objects.create(
@@ -74,14 +76,12 @@ class LikePostView(APIView):
         serializer = LikeSerializer(like)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+# Unlike view using permissions.IsAuthenticated and get_object_or_404
 class UnlikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        try:
-            post = Post.objects.get(pk=pk)
-        except Post.DoesNotExist:
-            return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+        post = get_object_or_404(Post, pk=pk)
         try:
             like = Like.objects.get(user=request.user, post=post)
         except Like.DoesNotExist:
