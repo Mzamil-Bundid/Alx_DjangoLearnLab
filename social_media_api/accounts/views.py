@@ -62,7 +62,7 @@ class FollowUserView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user_id = serializer.validated_data['user_id']
-            if not CustomUser.objects.filter(id=user_id).exists():
+            if not CustomUser.objects.all().filter(id=user_id).exists():
                 return Response({'user_id': ['User does not exist.']}, status=status.HTTP_400_BAD_REQUEST)
 
             user_to_follow = CustomUser.objects.get(id=user_id)
@@ -89,7 +89,7 @@ class UnfollowUserView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user_id = serializer.validated_data['user_id']
-            if not CustomUser.objects.filter(id=user_id).exists():
+            if not CustomUser.objects.all().filter(id=user_id).exists():
                 return Response({'user_id': ['User does not exist.']}, status=status.HTTP_400_BAD_REQUEST)
 
             user_to_unfollow = CustomUser.objects.get(id=user_id)
