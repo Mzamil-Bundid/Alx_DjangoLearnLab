@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, get_user_model
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, FollowSerializer
 from .models import CustomUser
 
+# Using generics.GenericAPIView for RegisterView
 class RegisterView(GenericAPIView):
     serializer_class = RegisterSerializer
 
@@ -21,6 +22,7 @@ class RegisterView(GenericAPIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# Using generics.GenericAPIView for LoginView
 class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
 
@@ -41,6 +43,7 @@ class LoginView(GenericAPIView):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# Using generics.GenericAPIView for UserProfileView with permissions.IsAuthenticated
 class UserProfileView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
@@ -49,6 +52,7 @@ class UserProfileView(GenericAPIView):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+# Using generics.GenericAPIView and permissions.IsAuthenticated for FollowUserView
 class FollowUserView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FollowSerializer
@@ -57,7 +61,7 @@ class FollowUserView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user_id = serializer.validated_data['user_id']
-            # Use CustomUser.objects.all() to check if user_id exists
+            # Check user existence using CustomUser.objects.all()
             if not CustomUser.objects.all().filter(id=user_id).exists():
                 return Response({'user_id': ['User does not exist.']}, status=status.HTTP_400_BAD_REQUEST)
             user_to_follow = CustomUser.objects.get(id=user_id)
@@ -65,6 +69,7 @@ class FollowUserView(GenericAPIView):
             return Response({'message': f'You are now following {user_to_follow.username}'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# Using generics.GenericAPIView and permissions.IsAuthenticated for UnfollowUserView
 class UnfollowUserView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FollowSerializer
@@ -73,7 +78,7 @@ class UnfollowUserView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user_id = serializer.validated_data['user_id']
-            # Use CustomUser.objects.all() to check if user_id exists
+            # Check user existence using CustomUser.objects.all()
             if not CustomUser.objects.all().filter(id=user_id).exists():
                 return Response({'user_id': ['User does not exist.']}, status=status.HTTP_400_BAD_REQUEST)
             user_to_unfollow = CustomUser.objects.get(id=user_id)
