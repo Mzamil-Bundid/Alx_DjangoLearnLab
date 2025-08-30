@@ -66,6 +66,8 @@ DATABASES = {
         conn_max_age=600
     )
 }
+PORT = os.getenv('PORT', '8000')
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
