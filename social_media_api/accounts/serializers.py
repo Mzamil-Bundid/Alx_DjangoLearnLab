@@ -23,10 +23,21 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             bio=validated_data.get('bio', ''),
         )
-        # Create a token for the new user
         token = Token.objects.create(user=user)
         return user
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
+
+class FollowSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+
+    def validate_user_id(self, value):
+        try:
+            user = get_user_model().objects.get(id=value)
+        except get_user_model().DoesNotExist:
+            raise serializers.ValidationError("User does not exist.")
+        if user == self.context['request'].user:
+            raise serializers.ValidationError("You cannot follow yourself.")
+        return value
