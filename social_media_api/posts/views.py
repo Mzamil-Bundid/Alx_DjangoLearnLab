@@ -33,7 +33,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         post_pk = self.kwargs.get('post_pk')
-        # Use generics.get_object_or_404 for post retrieval
+        # Explicitly use generics.get_object_or_404 for post retrieval
         post = get_object_or_404(Post, pk=post_pk)
         comment = serializer.save(author=self.request.user, post=post)
         # Create notification for comment
@@ -56,12 +56,12 @@ class FeedView(APIView):
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data, status=200)
 
-# Like view using permissions.IsAuthenticated and generics.get_object_or_404
+# Like view explicitly using permissions.IsAuthenticated and generics.get_object_or_404(Post, pk=pk)
 class LikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        # Use generics.get_object_or_404 to retrieve the post
+        # Explicitly use generics.get_object_or_404(Post, pk=pk) to retrieve the post
         post = get_object_or_404(Post, pk=pk)
         # Use Like.objects.get_or_create to handle like creation
         like, created = Like.objects.get_or_create(user=request.user, post=post)
@@ -71,7 +71,7 @@ class LikePostView(APIView):
         if post.author != request.user:
             Notification.objects.create(
                 recipient=post.author,
-                actor=request.user,
+                actor=self.request.user,
                 verb="liked your post",
                 target_content_type=ContentType.objects.get_for_model(Post),
                 target_object_id=post.id
@@ -79,12 +79,12 @@ class LikePostView(APIView):
         serializer = LikeSerializer(like)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-# Unlike view using permissions.IsAuthenticated and generics.get_object_or_404
+# Unlike view explicitly using permissions.IsAuthenticated and generics.get_object_or_404(Post, pk=pk)
 class UnlikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
-        # Use generics.get_object_or_404 to retrieve the post
+        # Explicitly use generics.get_object_or_404(Post, pk=pk) to retrieve the post
         post = get_object_or_404(Post, pk=pk)
         try:
             like = Like.objects.get(user=request.user, post=post)
