@@ -33,6 +33,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         post_pk = self.kwargs.get('post_pk')
+        # Use generics.get_object_or_404 for post retrieval
         post = get_object_or_404(Post, pk=post_pk)
         comment = serializer.save(author=self.request.user, post=post)
         # Create notification for comment
@@ -55,12 +56,14 @@ class FeedView(APIView):
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data, status=200)
 
-# Like view using permissions.IsAuthenticated and get_object_or_404
+# Like view using permissions.IsAuthenticated and generics.get_object_or_404
 class LikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
+        # Use generics.get_object_or_404 to retrieve the post
         post = get_object_or_404(Post, pk=pk)
+        # Use Like.objects.get_or_create to handle like creation
         like, created = Like.objects.get_or_create(user=request.user, post=post)
         if not created:
             return Response({'error': 'You have already liked this post'}, status=status.HTTP_400_BAD_REQUEST)
@@ -76,11 +79,12 @@ class LikePostView(APIView):
         serializer = LikeSerializer(like)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-# Unlike view using permissions.IsAuthenticated and get_object_or_404
+# Unlike view using permissions.IsAuthenticated and generics.get_object_or_404
 class UnlikePostView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
+        # Use generics.get_object_or_404 to retrieve the post
         post = get_object_or_404(Post, pk=pk)
         try:
             like = Like.objects.get(user=request.user, post=post)
